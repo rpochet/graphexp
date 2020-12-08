@@ -222,7 +222,7 @@ var graphShapes = (function(){
 			var item_properties = graphioGremlin.get_node_properties();
 		}
 		for (var prop_idx in item_properties){
-			var prop_name = item_properties[prop_idx];
+			var prop_name = item_properties[prop_idx].replace(':','_');
 			var prop_id_nb = prop_idx;
 			var prop_id = item+"_"+prop_name;
 			if((!d3.select("#"+prop_id).empty()) && d3.select("#"+prop_id).property("checked")){
