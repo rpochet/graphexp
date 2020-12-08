@@ -209,14 +209,16 @@ var graphioGremlin = (function(){
 
 		let server_address = $('#server_address').val();
 		let server_port = $('#server_port').val();
+		let server_user = $('#server_user').val();
+		let server_password = $('#server_password').val();
 		let COMMUNICATION_PROTOCOL = $('#server_protocol').val();
 			if (COMMUNICATION_PROTOCOL == 'REST'){
 				let server_url = "http://"+server_address+":"+server_port;
-				run_ajax_request(gremlin_query,server_url,query_type,active_node,message,callback);
+				run_ajax_request(gremlin_query,server_url,server_user,server_password,query_type,active_node,message,callback);
 			}
 			else if (COMMUNICATION_PROTOCOL == 'websocket'){
 				let server_url = "ws://"+server_address+":"+server_port+"/gremlin"
-				run_websocket_request(gremlin_query,server_url,query_type,active_node,message,callback);
+				run_websocket_request(gremlin_query,server_url,server_user,server_password,query_type,active_node,message,callback);
 			}
 			else {
 				console.log('Bad communication protocol. Check configuration file. Accept "REST" or "websocket" .')
@@ -227,7 +229,7 @@ var graphioGremlin = (function(){
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 	// AJAX request for the REST API
 	////////////////////////////////////////////////////////////////////////////////////////////////
-	function run_ajax_request(gremlin_query,server_url,query_type,active_node,message, callback){
+	function run_ajax_request(gremlin_query,server_url,server_user,server_password,query_type,active_node,message, callback){
 		// while busy, show we're doing something in the messageArea.
 		$('#messageArea').html('<h3>(loading)</h3>');
 
@@ -237,9 +239,13 @@ var graphioGremlin = (function(){
 			accept: "application/json",
 			//contentType:"application/json; charset=utf-8",
 			url: server_url,
-			//headers: GRAPH_DATABASE_AUTH,
 			timeout: REST_TIMEOUT,
 			data: JSON.stringify({"gremlin" : gremlin_query}),
+			beforeSend: function (xhr) {
+				if(server_user && server_password) {
+					xhr.setRequestHeader ("Authorization", "Basic " + btoa(server_user + ":" + server_password));
+				}
+			},
 			success: function(data, textStatus, jqXHR){
 							var Data = data.result.data;
 							//console.log(Data)
@@ -289,21 +295,37 @@ var graphioGremlin = (function(){
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Websocket connection
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
-	function run_websocket_request(gremlin_query,server_url,query_type,active_node,message,callback){
+	function run_websocket_request(gremlin_query,server_url,server_user,server_password,query_type,active_node,message,callback){
 		$('#messageArea').html('<h3>(loading)</h3>');
 
-		var msg = { "requestId": uuidv4(),
+		var querymsg = { 
+			"requestId": uuidv4(),
 			"op":"eval",
 			"processor":"",
-			"args":{"gremlin": gremlin_query,
+			"args":{
+				"gremlin": gremlin_query,
 				"bindings":{},
-				"language":"gremlin-groovy"}}
+				"language":"gremlin-groovy"
+			}
+		};
+		var querydata = JSON.stringify(querymsg);
 
-		var data = JSON.stringify(msg);
+		if(server_user && server_password) {
+			var authmsg = { 
+				"requestId": querymsg["requestId"],
+				"op":"authentication",
+				"processor":"",
+				"args":{
+					"saslMechanism": "PLAIN",
+					"sasl":btoa('\0' + server_user + '\0' + server_password)
+				}
+			};
+			var authdata = JSON.stringify(authmsg);
+		}
 
 		var ws = new WebSocket(server_url);
 		ws.onopen = function (event){
-			ws.send(data,{ mask: true});	
+			ws.send(querydata,{ mask: true});
 		};
 		ws.onerror = function (err){
 			console.log('Connection error using websocket');
@@ -322,14 +344,21 @@ var graphioGremlin = (function(){
 		};
 		ws.onmessage = function (event){
 			var response = JSON.parse(event.data);
-			var code=Number(response.status.code)
+			var code = Number(response.status.code)
 			if(!isInt(code) || code<200 || code>299) {
-				$('#outputArea').html(response.status.message);
-				$('#messageArea').html("Error retrieving data");
+				if(code == 407 && authdata) {
+					ws.send(authdata,{ mask: true});
+				} else {
+					$('#outputArea').html(response.status.message);
+					$('#messageArea').html("Error retrieving data");
+				}
 				return 1;
 			}
 			var data = response.result.data;
 			if (data == null){
+				if(code == 204) {
+					$('#outputArea').html('No content in response');
+				}
 				if (query_type == 'editGraph'){
 					$('#outputArea').html(response.status.message);
 					$('#messageArea').html('Could not write data to DB.' +
