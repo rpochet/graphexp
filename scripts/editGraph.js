@@ -126,10 +126,18 @@
 		//edgePropertyName = edgePropertyName.replace(/\s/g,'');
 		let edgePropertyValue = $('#edgePropertyValue').val();
 		//edgePropertyValue = edgePropertyValue.replace(/\s/g,'');
-		propertyName = edgePropertyName.split(",");
-		propertyValue = edgePropertyValue.split(",");
-		var valueLen = propertyValue.length;
-		var nameLen = propertyName.length;
+		var valueLen;
+		var nameLen
+		if(edgePropertyName == "" && edgePropertyValue == "") {
+			valueLen = 0;
+			nameLen = 0;
+		} else {
+			propertyName = edgePropertyName.split(",");
+			propertyValue = edgePropertyValue.split(",");
+			valueLen = propertyValue.length;
+			nameLen = propertyName.length;
+		}
+			
 		if(nameLen != valueLen){
 			alert("Please enter same number of property name and property value")
 		}
