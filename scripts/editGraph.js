@@ -7,6 +7,7 @@
 			x.style.display ="none" ;
 		}
 		document.getElementById("addVertexForm").style.display='none';
+		document.getElementById("removeVertexForm").style.display='none';
 		document.getElementById("editVertexForm").style.display='none';
 		document.getElementById("addEditEdgeForm").style.display='none';
 
@@ -14,12 +15,21 @@
 	
 	function addVertexForm() {
 		document.getElementById("addVertexForm").style.display='block';
+		document.getElementById("removeVertexForm").style.display='none';
+		document.getElementById("editVertexForm").style.display='none';
+		document.getElementById("addEditEdgeForm").style.display='none';
+	}
+	
+	function removeVertexForm() {
+		document.getElementById("addVertexForm").style.display='none';
+		document.getElementById("removeVertexForm").style.display='block';
 		document.getElementById("editVertexForm").style.display='none';
 		document.getElementById("addEditEdgeForm").style.display='none';
 	}
 		
 	function editVertexForm() {
 		document.getElementById("addVertexForm").style.display='none';
+		document.getElementById("removeVertexForm").style.display='none';
 		document.getElementById("editVertexForm").style.display='block';
 		document.getElementById("addEditEdgeForm").style.display='none';
 	}
@@ -92,6 +102,19 @@
 		//window.alert("Vertex Edited Succesfully")
 		editGraph();
 		}
+	}
+	
+	function removeVertex()  {
+		
+		let vertexId = $('#vertexId').val();
+		document.getElementById('vertexId').value='';
+		var gremlin_query = "g.V('"+vertexId+"').drop()";
+		console.log(gremlin_query)
+		var message=""
+		graphioGremlin.send_to_server(gremlin_query, 'editGraph', null, message);
+		console.log("Remove Vertex")
+		//window.alert("Vertex Edited Succesfully")
+		editGraph();
 	}
 	
 	function addEditEdge()  {

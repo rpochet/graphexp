@@ -87,6 +87,7 @@ function search_query(){
 								<div class="form-inline my-2 my-lg-0" id="editGraph" style="display:none; margin-left:10px;">
 									<div class="form-inline my-2 my-lg-0"> 
 										<button class="btn btn-default" onclick="addVertexForm()"> Add Vertex </button><br>
+										<button class="btn btn-default" onclick="removeVertexForm()"> Remove Vertex </button><br>
 										<button class="btn btn-default" onclick="editVertexForm()"> Edit Vertex </button><br>
 										<button class="btn btn-default" onclick="addEditEdgeForm()"> Add/Edit Edge </button><br>
 									</div>
@@ -130,6 +131,13 @@ function search_query(){
 							<input type="text" name="vertexPropertyValue" class="form-control" id="vertexPropertyValue"  placeholder="Enter Comma Seperated Property Value (e.g. Sandeep,27,male)">
 						</div>
 						<button class="btn btn-default btn-block" onclick="addVertex()"> Add Vertex </button>						 
+					</div><div class="nav input_unit_container", id="removeVertexForm" style="display:none;">
+						<h2>Remove Vertex :</h2>
+						<div class="nav input_unit_container form-group">
+							<label for="vertexId" > Vertex ID: </label>
+							<input type="text" name="vertexId" id="vertexId" class="form-control" size="45"  placeholder="Enter Vertex ID (e.g. 123)">
+						</div>
+						<button class="btn btn-default btn-block" onclick="removeVertex()"> Remove Vertex </button>
 					</div><div class="nav input_unit_container", id="editVertexForm" style="display:none;">
 						<h2>Edit Vertex :</h2>
 						<div class="nav input_unit_container form-group">
@@ -210,7 +218,7 @@ function search_query(){
 		<div class="footer">
 			<div class="container">
 				<form>
-					<div form-group>
+					<div class="form-group">
 						<label for="server_address">Server Address:</label>
 						<input name="server_address" id="server_address" value="localhost" />
 						<small id="emailHelp" class="form-text text-muted">The gremlin server address with which we want to communicate.</small>
@@ -227,6 +235,14 @@ function search_query(){
 						</select>
 					</div>
 					<div class="form-group">
+						<label for="server_user">Server user:</label>
+						<input name="server_user" id="server_user" type="text" value="root" placeholder="Server user"/>
+					</div>
+					<div class="form-group">
+						<label for="server_password">Server password:</label>
+						<input name="server_password" id="server_password" type="text" value="root" placeholder="Server password"/>
+					</div>
+					<div class="form-group">
 						<label for="communication_method">Gremlin version:</label>
 						<select class="form-control form-control-lg" name="communication_method" id="communication_method">
 							<option value="GraphSON3_4">3.4.*</option>
@@ -240,6 +256,7 @@ function search_query(){
 
 					<div class="form-group", id="editGraph" style="display:none;">
 					     <button onclick="addVertexForm()"   style="height:25px; width:150px" > Add Vertex </button><br>
+					     <button onclick="removeVertexForm()"   style="height:25px; width:150px" > Remove Vertex </button><br>
 					     <button onclick="editVertexForm()"  style="height:25px; width:150px" > Edit Vertex </button><br>
 					     <button onclick="addEditEdgeForm()"     style="height:25px; width:150px" > Add/Edit Edge </button><br>
 					</div>
@@ -260,6 +277,15 @@ function search_query(){
 					     </tr>
 						 </table>
 						 <button class=Center" style="margin-top:1%" onclick="addVertex()"> Add Vertex </button>						 
+					</div>
+					
+					<div class="form-group", id="removeVertexForm" style="display:none;">
+						<table>
+						<tr>
+					     <td><label for="vertexId" style="height:18px; width:500px" "display: inline-block"> Vertex ID: </label> </td>
+					     <td><input type="text" name="vertexId" id="vertexId" style="height:18px; width:500px" placeholder="Enter Vertex ID (e.g. 123)"> </td>
+ 					    </tr>
+						 <button class=Center" style="margin-top:1%" onclick="removeVertex()"> Remove Vertex </button>						 
 					</div>
 					
 					<div class="form-group", id="editVertexForm" style="display:none;">
